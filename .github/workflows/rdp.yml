@@ -11,7 +11,11 @@ jobs:
     - name: Setup user
       run: |
         net user runneradmin P@ssw0rd123
-        net localgroup administrators runneradmin /add
+        $group = "Administrators"
+        $user = "runneradmin"
+        if (!(net localgroup $group | Select-String $user)) {
+        net localgroup $group $user /add
+        }
 
     - name: Enable RDP
       run: |
