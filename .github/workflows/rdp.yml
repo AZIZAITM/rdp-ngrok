@@ -28,6 +28,8 @@ jobs:
         Expand-Archive ngrok.zip
 
     - name: Authenticate ngrok
+      env:
+        NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
       run: |
         .\ngrok\ngrok.exe config add-authtoken $env:NGROK_AUTH_TOKEN
 
