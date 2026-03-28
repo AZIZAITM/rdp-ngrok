@@ -37,11 +37,26 @@ jobs:
       run: |
         Start-Process -NoNewWindow -FilePath ".\ngrok\ngrok.exe" -ArgumentList "tcp 3389"
 
-    - name: Show connection info
-      run: |
-        Invoke-WebRequest http://127.0.0.1:4040/api/tunnels -OutFile tunnels.json
-        type tunnels.json
-
+    - name: Show ngrok connection info
+     run: |
+        $tunnelsReady = $false
+        for ($i=0; $i -lt 10; $i++) {
+           try {
+              $tunnels = Invoke-WebRequest http://127.0.0.1:4040/api/tunnels -UseBasicParsing
+              $tunnelsReady = $true
+              break
+           } catch {
+               Write-Host "Ngrok not ready yet, retrying in 3 seconds..."
+               Start-Sleep -Seconds 3
+           }
+        }
+        if ($tunnelsReady) {
+              $tunnels.Content | Out-File tunnels.json
+               type tunnels.json
+        } else {
+               Write-Host "Ngrok API did not respond in time."
+        }
+    
     - name: Keep alive
       run: |
         Start-Sleep -Seconds 21600
